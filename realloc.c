@@ -1,57 +1,62 @@
 #include "shell.h"
 
+/**
+ **_memset - fills memory with a constant byte
+ *@s: the pointer to the memory area
+ *@b: the byte to fill *s with
+ *@n: the amount of bytes to be filled
+ *Return: (s) a pointer to the memory area s
+ */
+char *_memset(char *s, char b, unsigned int n)
+{
+	unsigned int i;
 
+	for (i = 0; i < n; i++)
+		s[i] = b;
+	return (s);
+}
 
 /**
-
- * _erratoi - converts a string to an integer
-
- * @s: the string to be converted
-
- * Return: 0 if no numbers in string, converted number otherwise
-
- *       -1 on error
-
+ * ffree - frees a string of strings
+ * @pp: string of strings
  */
-
-int _erratoi(char *s)
-
+void ffree(char **pp)
 {
+	char **a = pp;
 
-int i = 0;
-
-unsigned long int result = 0;
-
-
-
-if (*s == +)
-
-s++;  /* TODO: why does this make main return 255? */
-
-for (i = 0;  s[i] != 0; i++)
-
-{
-
-if (s[i] >= 0 && s[i] <= 9)
-
-{
-
-result *= 10;
-
-result += (s[i] - 0);
-
-if (result > INT_MAX)
-
-return (-1);
-
+	if (!pp)
+		return;
+	while (*pp)
+		free(*pp++);
+	free(a);
 }
 
-else
+/**
+ * _realloc - reallocates a block of memory
+ * @ptr: pointer to previous malloc'ated block
+ * @old_size: byte size of previous block
+ * @new_size: byte size of new block
+ *
+ * Return: pointer to da ol'block nameen.
+ */
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
+{
+	char *p;
 
-return (-1);
+	if (!ptr)
+		return (malloc(new_size));
+	if (!new_size)
+		return (free(ptr), NULL);
+	if (new_size == old_size)
+		return (ptr);
 
-}
+	p = malloc(new_size);
+	if (!p)
+		return (NULL);
 
-return (result);
-
+	old_size = old_size < new_size ? old_size : new_size;
+	while (old_size--)
+		p[old_size] = ((char *)ptr)[old_size];
+	free(ptr);
+	return (p);
 }
