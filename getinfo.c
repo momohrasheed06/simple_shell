@@ -1,57 +1,74 @@
 #include "shell.h"
 
-
+/**
+ * clear_info - initializes info_t struct
+ * @info: struct address
+ */
+void clear_info(info_t *info)
+{
+	info->arg = NULL;
+	info->argv = NULL;
+	info->path = NULL;
+	info->argc = 0;
+}
 
 /**
-
- * _erratoi - converts a string to an integer
-
- * @s: the string to be converted
-
- * Return: 0 if no numbers in string, converted number otherwise
-
- *       -1 on error
-
+ * set_info - initializes info_t struct
+ * @info: struct address
+ * @av: argument vector
  */
-
-int _erratoi(char *s)
-
+void set_info(info_t *info, char **av)
 {
+	int i = 0;
 
-int i = 0;
+	info->fname = av[0];
+	if (info->arg)
+	{
+		info->argv = strtow(info->arg, " \t");
+		if (!info->argv)
+		{
 
-unsigned long int result = 0;
+			info->argv = malloc(sizeof(char *) * 2);
+			if (info->argv)
+			{
+				info->argv[0] = _strdup(info->arg);
+				info->argv[1] = NULL;
+			}
+		}
+		for (i = 0; info->argv && info->argv[i]; i++)
+			;
+		info->argc = i;
 
-
-
-if (*s == +)
-
-s++;  /* TODO: why does this make main return 255? */
-
-for (i = 0;  s[i] != 0; i++)
-
-{
-
-if (s[i] >= 0 && s[i] <= 9)
-
-{
-
-result *= 10;
-
-result += (s[i] - 0);
-
-if (result > INT_MAX)
-
-return (-1);
-
+		replace_alias(info);
+		replace_vars(info);
+	}
 }
 
-else
-
-return (-1);
-
-}
-
-return (result);
-
+/**
+ * free_info - frees info_t struct fields
+ * @info: struct address
+ * @all: true if freeing all fields
+ */
+void free_info(info_t *info, int all)
+{
+	ffree(info->argv);
+	info->argv = NULL;
+	info->path = NULL;
+	if (all)
+	{
+		if (!info->cmd_buf)
+			free(info->arg);
+		if (info->env)
+			free_list(&(info->env));
+		if (info->history)
+			free_list(&(info->history));
+		if (info->alias)
+			free_list(&(info->alias));
+		ffree(info->environ);
+			info->environ = NULL;
+		bfree((void **)info->cmd_buf);
+		if (info->readfd > 2)
+			close(info->readfd);
+		_putchar(BUF_FLUSH);
+	}
 }
